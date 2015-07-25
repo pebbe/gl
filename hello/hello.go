@@ -294,6 +294,7 @@ func main() {
 	r := makeResources()
 
 	gl.ClearColor(1, 1, 1, 0)
+	fmt.Println("Press 'q' to quit")
 	for !w.ShouldClose() {
 		time.Sleep(10 * time.Millisecond)
 
@@ -306,7 +307,6 @@ func main() {
 }
 
 func charCallBack(w *glfw.Window, char rune) {
-	fmt.Printf("%c\n", char)
 	if char == 'q' {
 		w.SetShouldClose(true)
 	}
