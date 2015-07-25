@@ -105,7 +105,18 @@ func makeTexture(filename string) uint32 {
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		x(errors.New("unsupported stride"))
 	}
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
+
+	// upside down
+	// draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
+
+	// flip upside down image upside up
+	ib := img.Bounds()
+	width := ib.Max.X
+	height := ib.Max.Y
+	for h := 0; h < height; h++ {
+		r := image.Rect(0, height-1-h, width, height-h)
+		draw.Draw(rgba, r, img, image.Point{0, h}, draw.Src)
+	}
 
 	var texture uint32
 	gl.GenTextures(1, &texture)
@@ -215,8 +226,10 @@ func makeResources() *gResources {
 // Update:
 //
 
+var start = time.Now()
+
 func updateFadeFactor(r *gResources) {
-	r.fadeFactor = float32(math.Sinh(float64(time.Now().Second()))*.5 + 05)
+	r.fadeFactor = float32(math.Sin(time.Since(start).Seconds())*.5 + 0.5)
 }
 
 func render(w *glfw.Window, r *gResources) {
@@ -260,7 +273,7 @@ func render(w *glfw.Window, r *gResources) {
 	gl.DrawElements(
 		gl.TRIANGLE_STRIP, /* mode */
 		4,                 /* count */
-		gl.UNSIGNED_SHORT, /* type */
+		gl.UNSIGNED_INT,   /* type */
 		gl.PtrOffset(0))   /* element array buffer offset */
 
 	gl.DisableVertexAttribArray(uint32(r.attributes.position))
@@ -317,7 +330,7 @@ func init() {
 }
 
 func x(err error) {
-	if x != nil {
+	if err != nil {
 		log.Fatalln(err)
 	}
 }
