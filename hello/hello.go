@@ -3,13 +3,13 @@ package main
 import (
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/pebbe/util"
 
 	"errors"
 	"fmt"
 	"image"
 	"image/draw"
 	_ "image/png"
+	"log"
 	"math"
 	"os"
 	"runtime"
@@ -19,8 +19,6 @@ import (
 )
 
 var (
-	x = util.CheckErr
-
 	v_glsl = `
 #version 110
 
@@ -316,4 +314,10 @@ func init() {
 	// This is needed to arrange that main() runs on main thread.
 	// See documentation for functions that are only allowed to be called from the main thread.
 	runtime.LockOSThread()
+}
+
+func x(err error) {
+	if x != nil {
+		log.Fatalln(err)
+	}
 }
