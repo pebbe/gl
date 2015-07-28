@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	v_glsl = `
+	vector_glsl = `
 #version 110
 
 attribute vec2 position;
@@ -29,11 +29,11 @@ varying vec2 texcoord;
 void main()
 {
     gl_Position = vec4(position, 0.0, 1.0);
-    texcoord = position * vec2(0.5) + vec2(0.5);
+    texcoord = position * vec2(0.5, -0.5) + vec2(0.5);
 }
 ` + "\x00"
 
-	f_glsl = `
+	fragment_glsl = `
 #version 110
 
 uniform float fade_factor;
@@ -106,17 +106,7 @@ func makeTexture(filename string) uint32 {
 		x(errors.New("unsupported stride"))
 	}
 
-	// upside down
-	// draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	// flip upside down image upside up
-	ib := img.Bounds()
-	width := ib.Max.X
-	height := ib.Max.Y
-	for h := 0; h < height; h++ {
-		r := image.Rect(0, height-1-h, width, height-h)
-		draw.Draw(rgba, r, img, image.Point{0, h}, draw.Src)
-	}
+	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
 
 	var texture uint32
 	gl.GenTextures(1, &texture)
@@ -127,7 +117,7 @@ func makeTexture(filename string) uint32 {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	gl.TexImage2D(
 		gl.TEXTURE_2D, 0, // target, level
-		gl.RGBA,                   // internal format
+		gl.RGB8,                   // internal format
 		int32(rgba.Rect.Size().X), // width
 		int32(rgba.Rect.Size().Y), // height
 		0,                         // border
@@ -209,8 +199,8 @@ func makeResources() *gResources {
 	r.textures[0] = makeTexture("hello1.png")
 	r.textures[1] = makeTexture("hello2.png")
 
-	r.vertexShader = makeShader(gl.VERTEX_SHADER, v_glsl)
-	r.fragmentShader = makeShader(gl.FRAGMENT_SHADER, f_glsl)
+	r.vertexShader = makeShader(gl.VERTEX_SHADER, vector_glsl)
+	r.fragmentShader = makeShader(gl.FRAGMENT_SHADER, fragment_glsl)
 	r.program = makeProgram(r.vertexShader, r.fragmentShader)
 
 	r.uniforms.fadeFactor = gl.GetUniformLocation(r.program, gl.Str("fade_factor\x00"))
@@ -234,15 +224,17 @@ func updateFadeFactor(r *gResources) {
 
 func render(w *glfw.Window, r *gResources) {
 
-	width, height := w.GetFramebufferSize()
-	gl.Viewport(0, 0, int32(width), int32(height))
-	gl.Clear(gl.COLOR_BUFFER_BIT)
+	/*
+		width, height := w.GetFramebufferSize()
+		gl.Viewport(0, 0, int32(width), int32(height))
+		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	gl.MatrixMode(gl.PROJECTION)
-	gl.LoadIdentity()
+		gl.MatrixMode(gl.PROJECTION)
+		gl.LoadIdentity()
 
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
+		gl.MatrixMode(gl.MODELVIEW)
+		gl.LoadIdentity()
+	*/
 
 	////////////////
 
