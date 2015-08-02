@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	vector_glsl = `
+	vertex_glsl = `
 #version 110
 
 attribute vec2 position;
@@ -199,7 +199,7 @@ func makeResources() *gResources {
 	r.textures[0] = makeTexture("hello1.png")
 	r.textures[1] = makeTexture("hello2.png")
 
-	r.vertexShader = makeShader(gl.VERTEX_SHADER, vector_glsl)
+	r.vertexShader = makeShader(gl.VERTEX_SHADER, vertex_glsl)
 	r.fragmentShader = makeShader(gl.FRAGMENT_SHADER, fragment_glsl)
 	r.program = makeProgram(r.vertexShader, r.fragmentShader)
 

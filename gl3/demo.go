@@ -22,7 +22,7 @@ var (
 	//
 	// axes
 	//
-	vector_glsl1 = `
+	vertex_glsl1 = `
 #version 110
 
 attribute vec2 position;
@@ -44,7 +44,7 @@ void main()
 	//
 	// triangle and circle
 	//
-	vector_glsl2 = `
+	vertex_glsl2 = `
 #version 110
 
 uniform float xmul;
@@ -250,11 +250,11 @@ func makeResources() *gResources {
 		colorBuffer2:   makeBuffer(gl.ARRAY_BUFFER, gl.Ptr(gColorBufferData2), 4*len(gColorBufferData2)),
 	}
 
-	r.vertexShader1 = makeShader(gl.VERTEX_SHADER, vector_glsl1)
+	r.vertexShader1 = makeShader(gl.VERTEX_SHADER, vertex_glsl1)
 	r.fragmentShader1 = makeShader(gl.FRAGMENT_SHADER, fragment_glsl1)
 	r.program1 = makeProgram(r.vertexShader1, r.fragmentShader1)
 
-	r.vertexShader2 = makeShader(gl.VERTEX_SHADER, vector_glsl2)
+	r.vertexShader2 = makeShader(gl.VERTEX_SHADER, vertex_glsl2)
 	r.fragmentShader2 = makeShader(gl.FRAGMENT_SHADER, fragment_glsl2)
 	r.program2 = makeProgram(r.vertexShader2, r.fragmentShader2)
 
