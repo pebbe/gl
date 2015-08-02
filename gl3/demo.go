@@ -19,6 +19,9 @@ import (
 )
 
 var (
+	//
+	// axes
+	//
 	vector_glsl1 = `
 #version 110
 
@@ -29,7 +32,6 @@ void main()
     gl_Position = vec4(position, 0.0, 1.0);
 }
 ` + "\x00"
-
 	fragment_glsl1 = `
 #version 110
 
@@ -39,13 +41,16 @@ void main()
 }
 ` + "\x00"
 
+	//
+	// triangle and circle
+	//
 	vector_glsl2 = `
 #version 110
 
 uniform float xmul;
 uniform float ymul;
-uniform float sn;
-uniform float cs;
+uniform float sin;
+uniform float cos;
 
 attribute vec3 vertexColor;
 attribute vec2 position;
@@ -54,11 +59,10 @@ varying vec3 color;
 
 void main()
 {
-    gl_Position = vec4(xmul * (cs*position[0] + sn*position[1]), ymul * (sn*position[0] - cs*position[1]), 0.0, 1.0);
+    gl_Position = vec4(xmul * (cos*position[0] + sin*position[1]), ymul * (sin*position[0] - cos*position[1]), 0.0, 1.0);
     color = vertexColor;
 }
 ` + "\x00"
-
 	fragment_glsl2 = `
 #version 110
 
@@ -85,10 +89,10 @@ type tUniforms struct {
 type tAttributes struct {
 	position int32
 	color    int32
-	color3   int32
 }
 
 type gResources struct {
+	// axes
 	vertexBuffer1   uint32
 	elementBuffer1  uint32
 	vertexShader1   uint32
@@ -96,6 +100,7 @@ type gResources struct {
 	program1        uint32
 	attributes1     tAttributes
 
+	// triangle
 	vertexBuffer2   uint32
 	elementBuffer2  uint32
 	colorBuffer2    uint32
@@ -105,6 +110,7 @@ type gResources struct {
 	uniforms2       tUniforms
 	attributes2     tAttributes
 
+	// circle, uses same program as triangle
 	vertexBuffer3  uint32
 	elementBuffer3 uint32
 	colorBuffer3   uint32
@@ -202,9 +208,10 @@ func makeProgram(vertexShader uint32, fragmentShader uint32) uint32 {
 }
 
 //
-// Data used to seed our vertex array and element array buffers:
+// Data used to seed our vertex arrays and element array buffers:
 //
 
+// axes
 var (
 	gVertexBufferData1 = []float32{
 		-1.0, 0.0,
@@ -215,6 +222,7 @@ var (
 	gElementBufferData1 = []uint32{0, 1, 2, 3}
 )
 
+// triangle
 var (
 	gVertexBufferData2 = []float32{
 		0.0, 1.0,
@@ -252,13 +260,14 @@ func makeResources() *gResources {
 
 	r.uniforms2.xmul = gl.GetUniformLocation(r.program2, gl.Str("xmul\x00"))
 	r.uniforms2.ymul = gl.GetUniformLocation(r.program2, gl.Str("ymul\x00"))
-	r.uniforms2.sin = gl.GetUniformLocation(r.program2, gl.Str("sn\x00"))
-	r.uniforms2.cos = gl.GetUniformLocation(r.program2, gl.Str("cs\x00"))
+	r.uniforms2.sin = gl.GetUniformLocation(r.program2, gl.Str("sin\x00"))
+	r.uniforms2.cos = gl.GetUniformLocation(r.program2, gl.Str("cos\x00"))
 
 	r.attributes1.position = gl.GetAttribLocation(r.program1, gl.Str("position\x00"))
 	r.attributes2.position = gl.GetAttribLocation(r.program2, gl.Str("position\x00"))
 	r.attributes2.color = gl.GetAttribLocation(r.program2, gl.Str("vertexColor\x00"))
 
+	// circle
 	gColorBufferData3 := make([]float32, 0, 126*3)
 	gVertexBufferData3 := make([]float32, 0, 126*2)
 	gElementBufferData3 := make([]uint32, 0, 126)
@@ -278,16 +287,13 @@ func makeResources() *gResources {
 }
 
 var start = time.Now()
+var ra = float32(.95)
 
 func render(w *glfw.Window, r *gResources) {
 
-	ra := float32(.95)
-
 	width, height := w.GetFramebufferSize()
 	ratio := float32(width) / float32(height)
-	d := time.Since(start).Seconds()
-	sin := float32(math.Sin(d))
-	cos := float32(math.Cos(d))
+
 	var xmul, ymul float32
 	if ratio > 1 {
 		xmul, ymul = ra/ratio, ra
@@ -295,10 +301,16 @@ func render(w *glfw.Window, r *gResources) {
 		xmul, ymul = ra, ra*ratio
 	}
 
+	d := time.Since(start).Seconds()
+	sin := float32(math.Sin(d))
+	cos := float32(math.Cos(d))
+
 	gl.Viewport(0, 0, int32(width), int32(height))
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	////////////////
+
+	// axes
 
 	gl.UseProgram(r.program1)
 
@@ -318,13 +330,15 @@ func render(w *glfw.Window, r *gResources) {
 	gl.LineWidth(1)
 	gl.DrawElements(
 		gl.LINES,        // mode
-		4,               // count/
+		4,               // count
 		gl.UNSIGNED_INT, // type
 		gl.PtrOffset(0)) // element array buffer offset
 
 	gl.DisableVertexAttribArray(uint32(r.attributes1.position))
 
 	////////////////
+
+	// triangle
 
 	gl.UseProgram(r.program2)
 
@@ -358,11 +372,13 @@ func render(w *glfw.Window, r *gResources) {
 
 	gl.DrawElements(
 		gl.TRIANGLES,    // mode
-		3,               // count/
+		3,               // count
 		gl.UNSIGNED_INT, // type
 		gl.PtrOffset(0)) // element array buffer offset
 
 	////////////////
+
+	// circle
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, r.vertexBuffer3)
 
@@ -389,7 +405,7 @@ func render(w *glfw.Window, r *gResources) {
 	gl.LineWidth(5)
 	gl.DrawElements(
 		gl.LINE_LOOP,    // mode
-		r.len3,          // count/
+		r.len3,          // count
 		gl.UNSIGNED_INT, // type
 		gl.PtrOffset(0)) // element array buffer offset
 
