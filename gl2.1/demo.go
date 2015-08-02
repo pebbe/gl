@@ -38,6 +38,7 @@ func main() {
 	}
 
 	setupScene(w)
+	fmt.Println("Press 'q' to quit")
 	for !w.ShouldClose() {
 		// Do OpenGL stuff.
 		time.Sleep(10 * time.Millisecond)
@@ -49,7 +50,6 @@ func main() {
 }
 
 func charCallBack(w *glfw.Window, char rune) {
-	fmt.Printf("%c\n", char)
 	if char == 'q' {
 		w.SetShouldClose(true)
 	}
