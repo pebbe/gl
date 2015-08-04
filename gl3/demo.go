@@ -23,7 +23,7 @@ var (
 	// axes
 	//
 	vertex_glsl1 = `
-#version 110
+#version 120
 
 attribute vec2 position;
 
@@ -33,7 +33,7 @@ void main()
 }
 ` + "\x00"
 	fragment_glsl1 = `
-#version 110
+#version 120
 
 void main()
 {
@@ -45,7 +45,7 @@ void main()
 	// triangle and circle
 	//
 	vertex_glsl2 = `
-#version 110
+#version 120
 
 uniform float xmul;
 uniform float ymul;
@@ -64,7 +64,7 @@ void main()
 }
 ` + "\x00"
 	fragment_glsl2 = `
-#version 110
+#version 120
 
 varying vec3 color;
 

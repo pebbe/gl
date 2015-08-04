@@ -20,7 +20,7 @@ import (
 
 var (
 	vertex_glsl = `
-#version 110
+#version 120
 
 attribute vec2 position;
 
@@ -34,7 +34,7 @@ void main()
 ` + "\x00"
 
 	fragment_glsl = `
-#version 110
+#version 120
 
 uniform float fade_factor;
 uniform sampler2D textures[2];
